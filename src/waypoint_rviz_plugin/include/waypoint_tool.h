@@ -21,28 +21,28 @@ class WaypointTool : public PoseTool
 {
   Q_OBJECT
 public:
-  WaypointTool();
+  WaypointTool(); // 생성자
   virtual ~WaypointTool()
   {
-  }
-  virtual void onInitialize();
+  } // 소멸자
+  virtual void onInitialize(); // 초기화 함수
 
 protected:
-  virtual void odomHandler(const nav_msgs::Odometry::ConstPtr& odom);
-  virtual void onPoseSet(double x, double y, double theta);
+  virtual void odomHandler(const nav_msgs::Odometry::ConstPtr& odom); // 오도메트리 메시지 핸들러
+  virtual void onPoseSet(double x, double y, double theta); // 포즈 설정 함수
 
 private Q_SLOTS:
-  void updateTopic();
+  void updateTopic(); // 토픽 업데이트 함수
 
 private:
-  float vehicle_z;
+  float vehicle_z; // 차량의 Z 좌표
 
-  ros::NodeHandle nh_;
-  ros::Subscriber sub_;
-  ros::Publisher pub_;
-  ros::Publisher pub_joy_;
+  ros::NodeHandle nh_; // ROS 노드 핸들
+  ros::Subscriber sub_; // ROS 구독자
+  ros::Publisher pub_; // ROS 퍼블리셔
+  ros::Publisher pub_joy_; // ROS 퍼블리셔 (Joy 메시지용)
 
-  StringProperty* topic_property_;
+  StringProperty* topic_property_; // 토픽 속성
 };
 }
 
