@@ -28,16 +28,18 @@
 #include <pcl/kdtree/kdtree_flann.h> // PCL의 K-d 트리 기능을 포함합니다.
 
 using namespace std; // 표준 라이브러리의 모든 이름을 전역 네임스페이스로 가져옵니다.
-
 const double PI = 3.1415926; // 원주율 값을 상수로 정의합니다.
 
 #define PLOTPATHSET 1 // PLOTPATHSET을 1로 정의합니다.
 
 string pathFolder; // 경로 폴더를 저장할 문자열 변수를 선언합니다.
+
+// 보통 차량에 따라서 vehicle length, vehicle width를 설정해줘야 합니다. 
 double vehicleLength = 0.6; // 차량의 길이를 미터 단위로 초기화합니다.
 double vehicleWidth = 0.6; // 차량의 너비를 미터 단위로 초기화합니다.
 double sensorOffsetX = 0; // 센서의 X축 오프셋을 초기화합니다.
 double sensorOffsetY = 0; // 센서의 Y축 오프셋을 초기화합니다.
+
 bool twoWayDrive = true; // 양방향 주행 여부를 초기화합니다.
 double laserVoxelSize = 0.05; // 레이저 보셀의 크기를 초기화합니다.
 double terrainVoxelSize = 0.2; // 지형 보셀의 크기를 초기화합니다.
