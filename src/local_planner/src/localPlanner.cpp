@@ -34,41 +34,69 @@ const double PI = 3.1415926; // 원주율 값을 상수로 정의합니다.
 
 string pathFolder; // 경로 폴더를 저장할 문자열 변수를 선언합니다.
 
-// 보통 차량에 따라서 vehicle length, vehicle width를 설정해줘야 합니다. 
+// 보통 차량에 따라서 vehicle length, vehicle width를 설정해줘야 함.
 double vehicleLength = 0.6; // 차량의 길이를 미터 단위로 초기화합니다.
 double vehicleWidth = 0.6; // 차량의 너비를 미터 단위로 초기화합니다.
+
+//센서의 오프셋을 매번 다르게 하고, 위치에 따라서 어떻게 되는지 확인해봐야함. 
 double sensorOffsetX = 0; // 센서의 X축 오프셋을 초기화합니다.
 double sensorOffsetY = 0; // 센서의 Y축 오프셋을 초기화합니다.
 
 bool twoWayDrive = true; // 양방향 주행 여부를 초기화합니다.
 double laserVoxelSize = 0.05; // 레이저 보셀의 크기를 초기화합니다.
 double terrainVoxelSize = 0.2; // 지형 보셀의 크기를 초기화합니다.
+
 bool useTerrainAnalysis = false; // 지형 분석 사용 여부를 초기화합니다.
 bool checkObstacle = true; // 장애물 확인 여부를 초기화합니다.
+
+//개인적으로 확인하고, 싶은 것은 회전 장애물 확인을 어떻게 하는가임.
 bool checkRotObstacle = false; // 회전 장애물 확인 여부를 초기화합니다.
+
 double adjacentRange = 3.5; // 인접 범위를 초기화합니다.
 double obstacleHeightThre = 0.2; // 장애물 높이 임계값을 초기화합니다.
 double groundHeightThre = 0.1; // 지면 높이 임계값을 초기화합니다.
+
+// 또한 여기서 costscore를 계산하고 적용하는 법에 대해서도 한번 확인해봐야 할 듯
 double costHeightThre = 0.1; // 비용 높이 임계값을 초기화합니다.
 double costScore = 0.02; // 비용 점수를 초기화합니다.
 bool useCost = false; // 비용 사용 여부를 초기화합니다.
 const int laserCloudStackNum = 1; // 레이저 클라우드 스택 수를 초기화합니다.
 int laserCloudCount = 0; // 레이저 클라우드 카운트를 초기화합니다.
+
+//pointperpaththre 이 변수는 어떤건지 확인 한번 해봐야 할 듯. 
 int pointPerPathThre = 2; // 경로당 포인트 임계값을 초기화합니다.
 double minRelZ = -0.5; // 최소 상대 Z값을 초기화합니다.
 double maxRelZ = 0.25; // 최대 상대 Z값을 초기화합니다.
+
+//maxSpeed 같은 경우, 최대 속도를 보통은 지정해주는데, 최대 속도를 어떻게 해야 하는가? 이게 항상 고민입니다. 
 double maxSpeed = 1.0; // 최대 속도를 초기화합니다.
+
+
+// 여기서 말하는 방향 가중치, 방향 임계값에 대해서 한번 확인해봐야 할 것으로 보임. 
 double dirWeight = 0.02; // 방향 가중치를 초기화합니다.
 double dirThre = 90.0; // 방향 임계값을 초기화합니다.
+
+//차량  방향 여부, 이 값도 한번 확인해볼 것. 
 bool dirToVehicle = false; // 차량 방향 여부를 초기화합니다.
+
+// 최소 경로 스케일을 지정해주는 이유도 확인해볼 것. 
 double pathScale = 1.0; // 경로 스케일을 초기화합니다.
 double minPathScale = 0.75; // 최소 경로 스케일을 초기화합니다.
 double pathScaleStep = 0.25; // 경로 스케일 단계값을 초기화합니다.
+
+// 속도에 따른 경로 스케일 사용 여부를 초기화 한다... 이말의 뜻은 무엇인지 궁금합니다. 
 bool pathScaleBySpeed = true; // 속도에 따른 경로 스케일 사용 여부를 초기화합니다.
+
 double minPathRange = 1.0; // 최소 경로 범위를 초기화합니다.
+
+// 여기서 말하는 경로 범위 단위값? 이건 뭔지 궁금합니당?
 double pathRangeStep = 0.5; // 경로 범위 단계값을 초기화합니다.
 bool pathRangeBySpeed = true; // 속도에 따른 경로 범위 사용 여부를 초기화합니다.
+
+// 이것도 궁금한게 목표에 따른 경로 자르기 여부? 이거는 뭔지 궁금합니다. 
 bool pathCropByGoal = true; // 목표에 따른 경로 자르기 여부를 초기화합니다.
+
+// 여기서 자율주행 모드의 여부를 초기화 하고, 자율주행 속도를 초기화 하는 이유에 대해서도 궁금합니다. 
 bool autonomyMode = false; // 자율 주행 모드 여부를 초기화합니다.
 double autonomySpeed = 1.0; // 자율 주행 속도를 초기화합니다.
 double joyToSpeedDelay = 2.0; // 조이스틱 속도 지연 시간을 초기화합니다.
@@ -78,15 +106,24 @@ double goalX = 0; // 목표의 X 좌표를 초기화합니다.
 double goalY = 0; // 목표의 Y 좌표를 초기화합니다.
 
 float joySpeed = 0; // 조이스틱 속도를 초기화합니다.
+
+// 여기서 말하는 joyspeedraw는 무엇인지 궁금합니다. 
 float joySpeedRaw = 0; // 원시 조이스틱 속도를 초기화합니다.
 float joyDir = 0; // 조이스틱 방향을 초기화합니다.
 
+// 경로 수를 상수로 정의하고, 그룹수를 상수로 정의한다는 거는 falco의 방식 그대로 사용하는 것으로 보입니다. 
 const int pathNum = 343; // 경로 수를 상수로 정의합니다.
 const int groupNum = 7; // 그룹 수를 상수로 정의합니다.
 float gridVoxelSize = 0.02; // 그리드 보셀 크기를 초기화합니다.
+
+//여기서 검색 반경을 초기화 하는 이유는 뭘지 궁금하네유.
 float searchRadius = 0.45; // 검색 반경을 초기화합니다.
+
+// 그리고 그리드 복셀  x, y offset 초기화 할 당시에 값이 다른 이유가 뭔지 궁금합니다. 
 float gridVoxelOffsetX = 3.2; // 그리드 보셀 X축 오프셋을 초기화합니다.
 float gridVoxelOffsetY = 4.5; // 그리드 보셀 Y축 오프셋을 초기화합니다.
+
+// 그리고 grid voxel num을 정해주는 이유와, 그 갯수가 궁금합니다. 
 const int gridVoxelNumX = 161; // 그리드 보셀의 X축 개수를 상수로 정의합니다.
 const int gridVoxelNumY = 451; // 그리드 보셀의 Y축 개수를 상수로 정의합니다.
 const int gridVoxelNum = gridVoxelNumX * gridVoxelNumY; // 그리드 보셀의 총 개수를 상수로 정의합니다.
@@ -97,12 +134,17 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr laserCloudDwz(new pcl::PointCloud<pcl::Poin
 pcl::PointCloud<pcl::PointXYZI>::Ptr terrainCloud(new pcl::PointCloud<pcl::PointXYZI>()); // 지형 클라우드를 저장할 포인터를 초기화합니다.
 pcl::PointCloud<pcl::PointXYZI>::Ptr terrainCloudCrop(new pcl::PointCloud<pcl::PointXYZI>()); // 잘린 지형 클라우드를 저장할 포인터를 초기화합니다.
 pcl::PointCloud<pcl::PointXYZI>::Ptr terrainCloudDwz(new pcl::PointCloud<pcl::PointXYZI>()); // 다운샘플링된 지형 클라우드를 저장할 포인터를 초기화합니다.
+
+// 여기서 궁금한 거는 레이저 클라우드 스택을 저장할 배열을 따로 만든 이유가 무엇인가요? 
 pcl::PointCloud<pcl::PointXYZI>::Ptr laserCloudStack[laserCloudStackNum]; // 레이저 클라우드 스택을 저장할 배열을 초기화합니다.
 pcl::PointCloud<pcl::PointXYZI>::Ptr plannerCloud(new pcl::PointCloud<pcl::PointXYZI>()); // 플래너 클라우드를 저장할 포인터를 초기화합니다.
 pcl::PointCloud<pcl::PointXYZI>::Ptr plannerCloudCrop(new pcl::PointCloud<pcl::PointXYZI>()); // 잘린 플래너 클라우드를 저장할 포인터를 초기화합니다.
 pcl::PointCloud<pcl::PointXYZI>::Ptr boundaryCloud(new pcl::PointCloud<pcl::PointXYZI>()); // 경계 클라우드를 저장할 포인터를 초기화합니다.
 pcl::PointCloud<pcl::PointXYZI>::Ptr addedObstacles(new pcl::PointCloud<pcl::PointXYZI>()); // 추가된 장애물 클라우드를 저장할 포인터를 초기화합니다.
+
+// 여기도 같습니다. 왜 시작 경로들을 배열로 저장한건가요. 
 pcl::PointCloud<pcl::PointXYZ>::Ptr startPaths[groupNum]; // 시작 경로들을 저장할 배열을 초기화합니다.
+// 여기서 말하는 plotpathset 에 대해서 설명 부탁드립니다. 
 #if PLOTPATHSET == 1
 pcl::PointCloud<pcl::PointXYZI>::Ptr paths[pathNum]; // 경로들을 저장할 배열을 초기화합니다.
 pcl::PointCloud<pcl::PointXYZI>::Ptr freePaths(new pcl::PointCloud<pcl::PointXYZI>()); // 자유 경로들을 저장할 포인터를 초기화합니다.
@@ -112,7 +154,11 @@ int pathList[pathNum] = {0}; // 경로 목록을 초기화합니다.
 float endDirPathList[pathNum] = {0}; // 경로의 끝 방향 목록을 초기화합니다.
 int clearPathList[36 * pathNum] = {0}; // 클리어 경로 목록을 초기화합니다.
 float pathPenaltyList[36 * pathNum] = {0}; // 경로 페널티 목록을 초기화합니다.
+
+// 여기서 말하는 그룹당 클리어 경로 점수는 무엇인가요. 
 float clearPathPerGroupScore[36 * groupNum] = {0}; // 그룹당 클리어 경로 점수를 초기화합니다.
+
+// 여기서 말하는  gridvoxel에 대응하는 correspondence는 무엇을 말하는 건가요. 
 std::vector<int> correspondences[gridVoxelNum]; // 그리드 보셀 수에 해당하는 대응 관계 벡터를 초기화합니다.
 
 bool newLaserCloud = false; // 새로운 레이저 클라우드 여부를 초기화합니다.
@@ -158,6 +204,7 @@ void laserCloudHandler(const sensor_msgs::PointCloud2ConstPtr& laserCloud2)
     pcl::fromROSMsg(*laserCloud2, *laserCloud);
 
     pcl::PointXYZI point;
+    // 항상 궁금했던게 왜 crop한 레이저 포인트 클라우드를 지우는 건가요 슬프게. 
     laserCloudCrop->clear(); // 잘린 레이저 클라우드를 지웁니다.
     int laserCloudSize = laserCloud->points.size(); // 레이저 클라우드의 포인트 수를 가져옵니다.
 
@@ -174,6 +221,8 @@ void laserCloudHandler(const sensor_msgs::PointCloud2ConstPtr& laserCloud2)
         point.x = pointX;
         point.y = pointY;
         point.z = pointZ;
+        // 그럼 이 코드에서는 현재 포인트와 차량 사이의 거리를 계산하고, 그 거리가 adjacentrange 안에 들어오면... 
+        // 잘린 포인트 클라우드에 포인트를 추가하는 건가요.
         laserCloudCrop->push_back(point); // 잘린 레이저 클라우드에 포인트를 추가합니다.
       }
     }
@@ -190,6 +239,7 @@ void terrainCloudHandler(const sensor_msgs::PointCloud2ConstPtr& terrainCloud2)
 {
   if (useTerrainAnalysis) {
     // 기존 지형 클라우드를 지우고 새로운 메시지를 지형 클라우드로 변환합니다.
+    // 하나 궁금한거는, 지금 코드에서 true, false로 bool 형식으로 해서, 만약 true면 사용하는 걸로 아는데, rviz에서  클릭하기 전까지는 적용이 안되는 건가?
     terrainCloud->clear();
     pcl::fromROSMsg(*terrainCloud2, *terrainCloud);
 
@@ -222,6 +272,11 @@ void terrainCloudHandler(const sensor_msgs::PointCloud2ConstPtr& terrainCloud2)
   }
 }
 
+
+
+
+/////////////////////////////////////////////////////
+/// 일단은 여기까지.. 
 void joystickHandler(const sensor_msgs::Joy::ConstPtr& joy)
 {
   // 현재 시간을 저장합니다.
