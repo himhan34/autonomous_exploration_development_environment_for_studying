@@ -31,11 +31,27 @@ double decayTime = 2.0; // 데이터 감쇠 시간
 double noDecayDis = 4.0; // 감쇠가 없는 거리
 double clearingDis = 8.0; // 클리어링 거리
 bool clearingCloud = false; // 클리어링 클라우드 사용 여부
+
+// 사실 정렬 사용같은 경우, 아직 잘 모르겠음. 
+// 여기서만 나오는 것 같은데, 궁금함. 
 bool useSorting = true; // 정렬 사용 여부
+
+//여기서 말하는 분위수는 z축에서 값들이 가장 큰 값들에 대한 ? 건가..
 double quantileZ = 0.25; // Z 축 분위수
+
+// 여기서 말하는 드롭 같은 경우, 기억하기로는 .....
+// 물체가 떨어지는 걸로 기억함. 
 bool considerDrop = false; // 드롭 고려 여부
+
 bool limitGroundLift = false; // 지면 상승 제한 여부
 double maxGroundLift = 0.15; // 최대 지면 상승 높이
+
+// 사실 launch 파일을 보면, 동적인 장애물에 대해서 하는 걸 본 적이 있는데, 잘 모르겠음. 
+// 그래서 이걸 어떻게 해야 할지 고민이 되더라고요.  
+// 동적인 장애물에 대해서 한번 확인은 해봐야 할 것 같습니다. 
+// 이게 그래도 재밌어 보이네용 
+// 다이나믹 옵스터클이라니... 
+// 여기서 동적 장애물 !? 어떻게 판단하나요. 
 bool clearDyObs = false; // 동적 장애물 클리어링 여부
 double minDyObsDis = 0.3; // 최소 동적 장애물 거리
 double minDyObsAngle = 0; // 최소 동적 장애물 각도
@@ -44,14 +60,22 @@ double absDyObsRelZThre = 0.2; // 절대 동적 장애물 상대 Z 임계값
 double minDyObsVFOV = -16.0; // 최소 동적 장애물 수직 시야각
 double maxDyObsVFOV = 16.0; // 최대 동적 장애물 수직 시야각
 int minDyObsPointNum = 1; // 최소 동적 장애물 포인트 수
+
 bool noDataObstacle = false; // 데이터 없는 장애물 여부
 int noDataBlockSkipNum = 0; // 데이터 없는 블록 생략 수
 int minBlockPointNum = 10; // 최소 블록 포인트 수
+
+// 또 궁금한게 이거에요. 
+// 이거 보니까... 이걸 기준으로 포인트 클라우드를 인식하는 범위가 갈라지는 것 같더라고요. 
+// 그래서 이걸 좀 나중에 꼭 봐야할 것 같습니다. 
 double vehicleHeight = 1.5; // 차량 높이
+
 int voxelPointUpdateThre = 100; // 볼륨 그리드 포인트 업데이트 임계값
 double voxelTimeUpdateThre = 2.0; // 볼륨 그리드 시간 업데이트 임계값
 double minRelZ = -1.5; // 최소 상대 Z 값
-double maxRelZ = 0.2; // 최대 상대 Z 값
+double maxRelZ = 0.2; // 최대 상대 Z 값\
+
+// 여기서 말하는 disratioz는 뭔가요? 
 double disRatioZ = 0.2; // 거리 비율 Z 값
 
 // 지형 볼륨 그리드 파라미터
@@ -64,7 +88,7 @@ const int terrainVoxelNum = terrainVoxelWidth * terrainVoxelWidth; // 지형 볼
 
 // 평면 볼륨 그리드 파라미터
 float planarVoxelSize = 0.2; // 평면 볼륨 그리드 크기
-const int planarVoxelWidth = 51; // 평면 볼륨 그리드 너비
+const int planarVoxelWidth = 51; // 평면 볼륨 그리드 너비 
 int planarVoxelHalfWidth = (planarVoxelWidth - 1) / 2; // 평면 볼륨 그리드 반너비
 const int planarVoxelNum = planarVoxelWidth * planarVoxelWidth; // 평면 볼륨 그리드 수
 
@@ -80,8 +104,11 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr terrainVoxelCloud[terrainVoxelNum]; // 지�
 int terrainVoxelUpdateNum[terrainVoxelNum] = {0}; // 각 지형 볼륨의 업데이트 횟수
 float terrainVoxelUpdateTime[terrainVoxelNum] = {0}; // 각 지형 볼륨의 마지막 업데이트 시간
 float planarVoxelElev[planarVoxelNum] = {0}; // 각 평면 볼륨의 고도 값
+
+// 근데 여기서 왜 엣지 정보를 받아오는 건가요? 
 int planarVoxelEdge[planarVoxelNum] = {0}; // 각 평면 볼륨의 엣지 정보
 int planarVoxelDyObs[planarVoxelNum] = {0}; // 각 평면 볼륨의 동적 장애물 정보
+// 몰랐는데, 동적 장애물을 고려를 하는 구나... 너무 슬프누. 
 vector<float> planarPointElev[planarVoxelNum]; // 각 평면 볼륨의 포인트 고도 값을 저장하는 벡터
 
 double laserCloudTime = 0; // 레이저 클라우드의 타임스탬프
@@ -93,7 +120,10 @@ int noDataInited = 0; // 데이터 초기화 여부
 
 float vehicleRoll = 0, vehiclePitch = 0, vehicleYaw = 0; // 차량의 롤, 피치, 요 각도
 float vehicleX = 0, vehicleY = 0, vehicleZ = 0; // 차량의 X, Y, Z 위치
+
+// 여기서 말하는 거, rec 은 나중 프로세스를 위해서 해야 하는 건가요?  
 float vehicleXRec = 0, vehicleYRec = 0; // 기록된 차량의 X, Y 위치
+
 
 float sinVehicleRoll = 0, cosVehicleRoll = 0; // 롤 각도의 사인 및 코사인 값
 float sinVehiclePitch = 0, cosVehiclePitch = 0; // 피치 각도의 사인 및 코사인 값
@@ -125,6 +155,7 @@ void odometryHandler(const nav_msgs::Odometry::ConstPtr &odom) {
   cosVehicleYaw = cos(vehicleYaw); // 요 각도의 코사인 값 계산 및 저장
 
   if (noDataInited == 0) { // 데이터가 초기화되지 않은 경우
+    // 이게 데이터를 초기화 하는 이유가 뭔가요? 
     vehicleXRec = vehicleX; // 기록된 차량의 X 좌표 갱신
     vehicleYRec = vehicleY; // 기록된 차량의 Y 좌표 갱신
     noDataInited = 1; // 데이터 초기화 상태를 1로 설정
@@ -160,6 +191,7 @@ void laserCloudHandler(const sensor_msgs::PointCloud2ConstPtr &laserCloud2) {
     float pointY = point.y; // 포인트의 Y 좌표
     float pointZ = point.z; // 포인트의 Z 좌표
 
+    // 여기서 다음 10줄 같은 경우, 왜 이렇게 되는 거고 이걸 어떻게 해야 하는 건가요? 
     float dis = sqrt((pointX - vehicleX) * (pointX - vehicleX) +
                      (pointY - vehicleY) * (pointY - vehicleY)); // 차량과 포인트 간의 거리 계산
     if (pointZ - vehicleZ > minRelZ - disRatioZ * dis &&
@@ -207,6 +239,8 @@ int main(int argc, char **argv) {
   nhPrivate.getParam("limitGroundLift", limitGroundLift); // 지면 상승 제한 여부
   nhPrivate.getParam("maxGroundLift", maxGroundLift); // 최대 지면 상승 높이
   nhPrivate.getParam("clearDyObs", clearDyObs); // 동적 장애물 클리어링 여부
+
+// 그래요... 여기서는 동적 장애물을 어떻게 처리하는 지에 대해서 깊게 봐야 할 것 같습니다. 
   nhPrivate.getParam("minDyObsDis", minDyObsDis); // 최소 동적 장애물 거리
   nhPrivate.getParam("minDyObsAngle", minDyObsAngle); // 최소 동적 장애물 각도
   nhPrivate.getParam("minDyObsRelZ", minDyObsRelZ); // 최소 동적 장애물 상대 Z 값
@@ -214,6 +248,8 @@ int main(int argc, char **argv) {
   nhPrivate.getParam("minDyObsVFOV", minDyObsVFOV); // 최소 동적 장애물 수직 시야각
   nhPrivate.getParam("maxDyObsVFOV", maxDyObsVFOV); // 최대 동적 장애물 수직 시야각
   nhPrivate.getParam("minDyObsPointNum", minDyObsPointNum); // 최소 동적 장애물 포인트 수
+//////////////// 여기까지임. 
+
   nhPrivate.getParam("noDataObstacle", noDataObstacle); // 데이터 없는 장애물 여부
   nhPrivate.getParam("noDataBlockSkipNum", noDataBlockSkipNum); // 데이터 없는 블록 생략 수
   nhPrivate.getParam("minBlockPointNum", minBlockPointNum); // 최소 블록 포인트 수
@@ -238,24 +274,13 @@ int main(int argc, char **argv) {
       nh.subscribe<sensor_msgs::Joy>("/joy", 5, joystickHandler);
 
   // 맵 클리어링 데이터를 구독하여 클리어링 콜백 함수 호출
+  // 이게 어디에서... clearHandler를 .,... 받아오는지 기억이 안나유...
   ros::Subscriber subClearing =
       nh.subscribe<std_msgs::Float32>("/map_clearing", 5, clearingHandler);
 
   // 지형 맵 데이터를 퍼블리시하기 위한 퍼블리셔 설정
   ros::Publisher pubLaserCloud =
       nh.advertise<sensor_msgs::PointCloud2>("/terrain_map", 2);
-
-
-
-
-
-
-
-
-
-
-
-
 
 // terrainVoxelNum 만큼 terrainVoxelCloud 초기화 (PointCloud를 저장할 포인터 배열)
 for (int i = 0; i < terrainVoxelNum; i++) {
@@ -279,10 +304,14 @@ while (status) {
     newlaserCloud = false; // 새로운 데이터 플래그를 false로 설정
 
     // 지형 보셀 중심 좌표 계산
+    // 아 보니까... 아... 
+    // 근데 제가 아직 이게 이해가 안되는 게... 여기서 size와 shift에 대해서 아직은 잘 모르겠습니다. 
     float terrainVoxelCenX = terrainVoxelSize * terrainVoxelShiftX;
     float terrainVoxelCenY = terrainVoxelSize * terrainVoxelShiftY;
 
     // 차량이 지형 보셀 중심보다 왼쪽에 있을 때 보셀 이동
+    // 근데 이게 보니까.... 음.... ?   
+    // 아 결국 맞춰주는 거다? 이건가요. 
     while (vehicleX - terrainVoxelCenX < -terrainVoxelSize) {
       for (int indY = 0; indY < terrainVoxelWidth; indY++) {
         // 마지막 열의 포인터 저장
@@ -453,6 +482,9 @@ for (int i = 0; i < terrainCloudSize; i++) { // 각 포인트에 대해 루프
   }
 
   // 동적 장애물 검출을 위한 처리
+  // 여기야..!!! 여기라구... 
+  // 이 코드 보면 동적인 장애물에 대해서 처리를 하는 것 같애. 
+  // 그래서 이 코드를 보면, 동적인 장애물에 대해서 확인을 하쥬. 
   if (clearDyObs) {
     if (indX >= 0 && indX < planarVoxelWidth && indY >= 0 && indY < planarVoxelWidth) {
       float pointX1 = point.x - vehicleX; // 차량 기준 X 좌표
@@ -492,6 +524,10 @@ for (int i = 0; i < terrainCloudSize; i++) { // 각 포인트에 대해 루프
 
 
         // 동적 장애물 제거를 위한 처리
+        // 근데 여기서 동적 장애물 제거를 해야 하는 건가요? 
+        // 이번 랩 미팅때는 이걸 말씀 드려야 할 것 같음....  
+       // 이 코드에서는 동적인 장애물을 인식을 하지만... 제거를 하는 것 같다. 
+      // 그래서 이걸 인식하고... 이거에 대해서 속도 퍼블리싱 하는 것을 중요시 해야 한다...
     if (clearDyObs) {
       for (int i = 0; i < laserCloudCropSize; i++) { // 각 레이저 클라우드 포인트에 대해 루프
         point = laserCloudCrop->points[i]; // 현재 포인트를 가져옴
@@ -516,14 +552,17 @@ for (int i = 0; i < terrainCloudSize; i++) { // 각 포인트에 대해 루프
           float angle1 = atan2(pointZ1 - minDyObsRelZ, dis1) * 180.0 / PI;
           
           // 각도가 최소 동적 장애물 각도보다 큰 경우
-          if (angle1 > minDyObsAngle) {
+          // 그러면 최소 동적 장애물보다 크니... 0 이 되는 것 같네요. 허허   
+        if (angle1 > minDyObsAngle) {
             planarVoxelDyObs[planarVoxelWidth * indX + indY] = 0; // 해당 보셀의 동적 장애물 수를 0으로 설정
+            
           }
         }
       }
     }
     
     // 고도 정렬을 사용하는 경우
+    // 고도 정렬을 한다는 것은... 결국 이거를 넘지 말라는 뜻 같습니다. 
     if (useSorting) {
       for (int i = 0; i < planarVoxelNum; i++) { // 각 보셀에 대해 루프
         int planarPointElevSize = planarPointElev[i].size(); // 현재 보셀의 고도 포인트 수를 가져옴
@@ -567,8 +606,13 @@ for (int i = 0; i < terrainCloudSize; i++) { // 각 포인트에 대해 루프
     int terrainCloudElevSize = 0;
     for (int i = 0; i < terrainCloudSize; i++) { // 각 지형 클라우드 포인트에 대해 루프
       point = terrainCloud->points[i]; // 현재 포인트를 가져옴
+
+      //아 .... 야발 그렇구나, 그러니까 이렇게 되는 구나 싶다. 
+      // 결론적으로 포인트의 고도가 기준 최소 및 최대 고도 사이를 확인하고, 이걸 기준으로 한다... 야호... 
       // 포인트의 고도가 차량 기준 최소 및 최대 고도 사이에 있는지 확인
+      // 역시 코드에 대해서는 확실히 이해를 하고 코드를 돌리는 것이 맞다는 걸 확인한 것 같다. 
       if (point.z - vehicleZ > minRelZ && point.z - vehicleZ < maxRelZ) {
+      
         // 보셀 인덱스 계산
         int indX = int((point.x - vehicleX + planarVoxelSize / 2) / planarVoxelSize) + planarVoxelHalfWidth;
         int indY = int((point.y - vehicleY + planarVoxelSize / 2) / planarVoxelSize) + planarVoxelHalfWidth;
@@ -579,7 +623,9 @@ for (int i = 0; i < terrainCloudSize; i++) { // 각 포인트에 대해 루프
     
         // 인덱스가 유효한 범위 내에 있는지 확인
         if (indX >= 0 && indX < planarVoxelWidth && indY >= 0 && indY < planarVoxelWidth) {
+          
           // 동적 장애물 포인트 수가 최소 동적 장애물 포인트 수보다 작거나 동적 장애물을 제거하지 않는 경우
+          // 여기서도 동적인 장애물에 대해서 체크를 한다잉. 
           if (planarVoxelDyObs[planarVoxelWidth * indX + indY] < minDyObsPointNum || !clearDyObs) {
             float disZ = point.z - planarVoxelElev[planarVoxelWidth * indX + indY]; // 고도 차이 계산
             if (considerDrop) disZ = fabs(disZ); // 고도 차이를 절대값으로 변환
