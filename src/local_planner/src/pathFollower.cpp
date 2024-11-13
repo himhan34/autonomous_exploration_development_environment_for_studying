@@ -26,8 +26,10 @@
 #include <pcl/filters/voxel_grid.h> // PCL에서 볼륨 그리드 필터를 사용하기 위한 헤더 파일
 #include <pcl/kdtree/kdtree_flann.h> // PCL에서 KD 트리를 사용하기 위한 헤더 파일
 
-using namespace std; // 표준 네임스페이스 사용 선언
+/////////////////////////////////////////////////////////////
+// 개인적으로는 , 왜 include 사이에 namespace가 있는지 몰랐는데,... 잘못 본거 였네. 
 
+using namespace std; // 표준 네임스페이스 사용 선언
 const double PI = 3.1415926; // 파이 상수 정의
 
 double sensorOffsetX = 0; // 센서의 X축 오프셋
@@ -72,6 +74,8 @@ float vehicleRoll = 0; // 차량의 롤
 float vehiclePitch = 0; // 차량의 피치
 float vehicleYaw = 0; // 차량의 요
 
+// 잠만 여기서 왜 vehicle x, vehicle y, vehicle z, roll, pitch,yaw가 ... 왜 기록된 걸 사용하는 거죠.... 
+// 이거 처음 봄... 
 float vehicleXRec = 0; // 기록된 차량의 X 좌표
 float vehicleYRec = 0; // 기록된 차량의 Y 좌표
 float vehicleZRec = 0; // 기록된 차량의 Z 좌표
@@ -89,6 +93,8 @@ double stopInitTime = 0; // 정지 초기화 시간
 int pathPointID = 0; // 경로 포인트 ID
 bool pathInit = false; // 경로 초기화 여부
 bool navFwd = true; // 전방 주행 여부
+
+// 여기서 왜 전환 시간이 되어있는가요?
 double switchTime = 0; // 전환 시간
 
 nav_msgs::Path path; // 경로 메시지
@@ -106,16 +112,18 @@ void odomHandler(const nav_msgs::Odometry::ConstPtr& odomIn)
   vehicleYaw = yaw; // 차량의 요 각도 갱신
   vehicleX = odomIn->pose.pose.position.x - cos(yaw) * sensorOffsetX + sin(yaw) * sensorOffsetY; // 차량의 X 좌표 갱신 (센서 오프셋 보정)
   vehicleY = odomIn->pose.pose.position.y - sin(yaw) * sensorOffsetX - cos(yaw) * sensorOffsetY; // 차량의 Y 좌표 갱신 (센서 오프셋 보정)
-  vehicleZ = odomIn->pose.pose.position.z; // 차량의 Z 좌표 갱신
+  vehicleZ = odomIn->pose.pose.position.z; // 차량의 Z 좌표 갱신 // 저번에 기억하기에는 여기에, 센서 높이 옵셋 줬던 기억이 있습니다. 
 
   // 롤 또는 피치가 임계값을 초과하고 경사를 사용하여 정지할 경우
   if ((fabs(roll) > inclThre * PI / 180.0 || fabs(pitch) > inclThre * PI / 180.0) && useInclToStop) {
     stopInitTime = odomIn->header.stamp.toSec(); // 정지 초기화 시간 갱신
+    // 아.... 경사가 반영되어서 정지 초기화 시간이 갱신되는 구만... 
   }
 
   // 각속도가 임계값을 초과하고 경사율을 사용하여 감속할 경우
   if ((fabs(odomIn->twist.twist.angular.x) > inclRateThre * PI / 180.0 || fabs(odomIn->twist.twist.angular.y) > inclRateThre * PI / 180.0) && useInclRateToSlow) {
     slowInitTime = odomIn->header.stamp.toSec(); // 감속 초기화 시간 갱신
+    // 그리고 각속도가 임계값을 .;.. 초과, 감속... 
   }
 }
 
@@ -128,7 +136,8 @@ void pathHandler(const nav_msgs::Path::ConstPtr& pathIn)
     path.poses[i].pose.position.y = pathIn->poses[i].pose.position.y; // 경로 포즈의 Y 좌표 갱신
     path.poses[i].pose.position.z = pathIn->poses[i].pose.position.z; // 경로 포즈의 Z 좌표 갱신
   }
-
+  //사실 여기서, 이게 state를 저장해서 사용하는 거 아닐까?
+  // 코드에서는 그런 거 같은데? 
   vehicleXRec = vehicleX; // 기록된 차량의 X 좌표 갱신
   vehicleYRec = vehicleY; // 기록된 차량의 Y 좌표 갱신
   vehicleZRec = vehicleZ; // 기록된 차량의 Z 좌표 갱신
@@ -176,12 +185,14 @@ void speedHandler(const std_msgs::Float32::ConstPtr& speed)
     // 속도를 0과 1 사이로 제한
     if (joySpeed < 0) joySpeed = 0;
     else if (joySpeed > 1.0) joySpeed = 1.0;
+    // 개인적으로 이렇게 속도를 조절하는 거 자체가 좋은 것 같다. 
   }
 }
 
 void stopHandler(const std_msgs::Int8::ConstPtr& stop)
 {
   safetyStop = stop->data; // 수신된 정지 명령 데이터를 안전 정지 변수에 저장
+  // 여기서 안전, 정지 변수? 라는 걸 두는 것은 나쁘지 않아보임. 
 }
 
 int main(int argc, char** argv)
@@ -205,17 +216,26 @@ int main(int argc, char** argv)
   nhPrivate.getParam("dirDiffThre", dirDiffThre); // 방향 차이 임계값
   nhPrivate.getParam("stopDisThre", stopDisThre); // 정지 거리 임계값
   nhPrivate.getParam("slowDwnDisThre", slowDwnDisThre); // 감속 거리 임계값
+
+  // 경사를 사용한 임계값? 
   nhPrivate.getParam("useInclRateToSlow", useInclRateToSlow); // 경사율을 사용한 감속 여부
   nhPrivate.getParam("inclRateThre", inclRateThre); // 경사율 임계값
+  // 여기서 경사율 임계값? 은 뭔가용....  
+  
   nhPrivate.getParam("slowRate1", slowRate1); // 감속율 1
   nhPrivate.getParam("slowRate2", slowRate2); // 감속율 2
   nhPrivate.getParam("slowTime1", slowTime1); // 감속 시간 1
   nhPrivate.getParam("slowTime2", slowTime2); // 감속 시간 2
+  
   nhPrivate.getParam("useInclToStop", useInclToStop); // 경사를 사용한 정지 여부
+  // 여기서는 경사를 사용했다는데, 경사를 사용한 정지에 대해서는 확실히 해봐야할 것 같음. 
   nhPrivate.getParam("inclThre", inclThre); // 경사 임계값
   nhPrivate.getParam("stopTime", stopTime); // 정지 시간
+  // 아직 실험을 안해봤어용 .... 
+  
   nhPrivate.getParam("noRotAtStop", noRotAtStop); // 정지 시 회전 금지 여부
   nhPrivate.getParam("noRotAtGoal", noRotAtGoal); // 목표 도착 시 회전 금지 여부
+  
   nhPrivate.getParam("autonomyMode", autonomyMode); // 자율 모드 여부
   nhPrivate.getParam("autonomySpeed", autonomySpeed); // 자율 모드 속도
   nhPrivate.getParam("joyToSpeedDelay", joyToSpeedDelay); // 조이스틱 속도 지연 시간
@@ -253,6 +273,7 @@ int main(int argc, char** argv)
     ros::spinOnce(); // 콜백 함수 실행
 
     if (pathInit) { // 경로가 초기화되었을 때
+      // 여기서 경로 초기화 되면 현재 위치랑, 목표 위치랑 해서... 계산해서 하는 거지? 
       float vehicleXRel = cos(vehicleYawRec) * (vehicleX - vehicleXRec) 
                         + sin(vehicleYawRec) * (vehicleY - vehicleYRec); // 상대 X 좌표 계산
       float vehicleYRel = -sin(vehicleYawRec) * (vehicleX - vehicleXRec) 
@@ -303,9 +324,14 @@ int main(int argc, char** argv)
         if (dirDiff > PI) dirDiff -= 2 * PI;
         joySpeed2 *= -1;
       }
+      // 그래서 yaw 설정하는 걸 깔금하게 조정할 수 있음. 
+      // 그래서 속도 마진보다 작으면 정지 요율 이득을 사용해서 요율 설정함. 
+      // 그리고 차량속도 마진 보다 크면 일반 요율 이득을 사용해서 요율을 설정함.
       if (fabs(vehicleSpeed) < 2.0 * maxAccel / 100.0) 
+        // 아 근데 여기서 보면.... 그 속도가 2보다 작으면 정지 요율 이득을 사용해서 요율을 설정함. 
         vehicleYawRate = -stopYawRateGain * dirDiff; // 차량 속도가 낮을 경우 정지 요율 이득을 사용하여 요율 설정
       else 
+        // 차량 속도가 높을 경우, 일반 요율 이동을 이용하여서 요율 설정.
         vehicleYawRate = -yawRateGain * dirDiff; // 차량 속도가 높을 경우 일반 요율 이득을 사용하여 요율 설정
 
       // 최대 요율 제한
