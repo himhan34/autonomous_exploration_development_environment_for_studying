@@ -380,6 +380,9 @@ void boundaryHandler(const geometry_msgs::PolygonStamped::ConstPtr& boundary)
   }
 }
 
+// 이번에 코드 만들 거는 여기서 하면 될 것 같음. 
+// 만약 정적인 장애물, 동적인 장애물이 분리가 된다면 확인될 필요가 있음. 
+// 결국 장애물을 만드는 건데 여기서 어떻게 장애물을 만들어내고 최적화 하는지 보면 될 것 같음. 
 void addedObstaclesHandler(const sensor_msgs::PointCloud2ConstPtr& addedObstacles2)
 {
   // 추가된 장애물 클라우드를 지우고 새로운 메시지를 추가된 장애물 클라우드로 변환합니다.
@@ -404,7 +407,8 @@ void checkObstacleHandler(const std_msgs::Bool::ConstPtr& checkObs)
     checkObstacle = checkObs->data;
   }
 }
-
+//////////////////////////////////////////////////
+// 사실 하나 더 궁금한 거는 이 PLY를 어떻게 이용하고 사용하는지에 대해서 확실히 해야 한다는 것임. 
 int readPlyHeader(FILE *filePtr)
 {
   char str[50]; // 문자열을 읽어올 버퍼를 선언합니다.
@@ -442,6 +446,8 @@ int readPlyHeader(FILE *filePtr)
   return pointNum;
 }
 
+// 여기서 시작 경로 파일이라는 게 뭔지 모르겠고, 만약 목표점이 있고, 
+// 그걸 가지고, 이동해야 한다면 이걸... 불러오는 건지 궁금함. 
 void readStartPaths()
 {
   // 시작 경로 파일의 경로를 설정합니다.
@@ -536,6 +542,7 @@ void readPaths()
   fclose(filePtr);
 }
 #endif
+// 내 기억상에는 이 PLY 파일이, 그 바운더리였던 걸로 기억하는데, 말이지. 
 
 void readPathList()
 {
@@ -556,6 +563,7 @@ void readPathList()
     exit(1);
   }
 
+  // 여기서 말하는 val1, val2, val3... 등등은 무엇인지 궁금한네. 
   int val1, val2, val3, val4, val5, pathID, groupID; // 파일에서 읽은 값을 저장할 변수를 선언합니다.
   float endX, endY, endZ; // 경로의 끝 점을 저장할 변수를 선언합니다.
 
@@ -586,6 +594,8 @@ void readPathList()
   fclose(filePtr);
 }
 
+// 코드 보면서도 항상 궁금했던 거는 여기서 말하는 correspondence는 뭘 말하는 건지 궁금함. 
+// 이게 보면 파일 자체가 엄청 커서 이해가 안됬는데 말이지. 
 void readCorrespondences()
 {
   // 대응 관계 파일의 경로를 설정합니다.
@@ -675,9 +685,13 @@ int main(int argc, char** argv)
   nhPrivate.getParam("pathScale", pathScale); // 경로 스케일
   nhPrivate.getParam("minPathScale", minPathScale); // 최소 경로 스케일
   nhPrivate.getParam("pathScaleStep", pathScaleStep); // 경로 스케일 단계
+  
+  // 지금 드는 생각 같은 경우, 인식한 장애물의 속도 말고도, 내가 만들어낸 내 속도에 의해서도 제어가 추가적으로 들어가면 좋을 것 같음. 
   nhPrivate.getParam("pathScaleBySpeed", pathScaleBySpeed); // 속도에 따른 경로 스케일
   nhPrivate.getParam("minPathRange", minPathRange); // 최소 경로 범위
   nhPrivate.getParam("pathRangeStep", pathRangeStep); // 경로 범위 단계
+
+  // 지금 드는 생각 같은 경우, 인식한 장애물의 속도 말고도, 내가 만들어낸 내 속도에 의해서도 제어가 추가적으로 들어가면 좋을 것 같음. 
   nhPrivate.getParam("pathRangeBySpeed", pathRangeBySpeed); // 속도에 따른 경로 범위
   nhPrivate.getParam("pathCropByGoal", pathCropByGoal); // 목표에 따른 경로 크롭
   nhPrivate.getParam("autonomyMode", autonomyMode); // 자율 모드
@@ -696,6 +710,7 @@ int main(int argc, char** argv)
   ros::Subscriber subLaserCloud = nh.subscribe<sensor_msgs::PointCloud2>
                                   ("/registered_scan", 5, laserCloudHandler);
 
+  // 이 코드에서는 terrain analysis도 매우 중요함. 
   // 지형 정보를 수신하는 구독자 설정
   ros::Subscriber subTerrainCloud = nh.subscribe<sensor_msgs::PointCloud2>
                                     ("/terrain_map", 5, terrainCloudHandler);
@@ -725,11 +740,16 @@ int main(int argc, char** argv)
 
   #if PLOTPATHSET == 1
   // 자유 경로를 퍼블리시하는 퍼블리셔 설정
+  
   ros::Publisher pubFreePaths = nh.advertise<sensor_msgs::PointCloud2> ("/free_paths", 2);
   #endif
 
   // 라이다 포인트 클라우드를 퍼블리시하는 퍼블리셔 (주석 처리됨)
   // ros::Publisher pubLaserCloud = nh.advertise<sensor_msgs::PointCloud2> ("/stacked_scans", 2);
+  // 이게 궁금한게, 포인트 클라우드인데, 2d인지 아니면 3d인지 궁금하네. 
+
+  //  그리고 항상 코드 볼때, 느끼는 거는 이거 계속 이렇게 초기화하면서 가는 건가 아니면 
+ // 그냥 쭉하는 건지 궁금하네.
 
   printf ("\nReading path files.\n"); // 경로 파일을 읽기 시작
 
@@ -790,6 +810,8 @@ int main(int argc, char** argv)
         *laserCloudStack[laserCloudCount] = *laserCloudDwz; // 다운 샘플링된 클라우드 복사
         laserCloudCount = (laserCloudCount + 1) % laserCloudStackNum; // 스택 카운트 업데이트
 
+
+        // 여기서 planner 클라우드를 초기화 하는 이유거 궁금하고, 이 플래너 클라우드에 스택 클라우드가 어떤  영향을 미치는지 궁금한다. 
         plannerCloud->clear(); // 플래너 클라우드 초기화
         for (int i = 0; i < laserCloudStackNum; i++) {
           *plannerCloud += *laserCloudStack[i]; // 스택 클라우드를 플래너 클라우드에 추가
@@ -804,6 +826,7 @@ int main(int argc, char** argv)
       }
 
       // 차량의 롤, 피치, 요우 각도를 계산
+      // 전에 보니 이렇게 계산하는 이유는 효율성을 위해서임. 
       float sinVehicleRoll = sin(vehicleRoll);
       float cosVehicleRoll = cos(vehicleRoll);
       float sinVehiclePitch = sin(vehiclePitch);
@@ -850,7 +873,10 @@ int main(int argc, char** argv)
           plannerCloudCrop->push_back(point); // 인접 범위 내 포인트를 크롭된 플래너 클라우드에 추가
         }
       }
-
+////////////////////////////////////////////////////////////////////////
+      // 찾았다... 여기서 장애물에 대해서 확인하는 것 같음. 
+      // 이 장애물들은 어디서 만들어지는 거지... terrain map인가... 
+     // 그냥 registered map인가. 
       int addedObstaclesSize = addedObstacles->points.size();
       for (int i = 0; i < addedObstaclesSize; i++) {
         // 추가 장애물 포인트를 차량 좌표계를 기준으로 변환
@@ -867,9 +893,11 @@ int main(int argc, char** argv)
           plannerCloudCrop->push_back(point); // 인접 범위 내 포인트를 크롭된 플래너 클라우드에 추가
         }
       }
+      /////////////////////////////////////////////
 
       float pathRange = adjacentRange;
       if (pathRangeBySpeed) pathRange = adjacentRange * joySpeed; // 속도에 따른 경로 범위 조정
+      // 개인적으로는 pathRange가 속도에 대한 변수 중 하나로 적용될 수 있을 것 같:
       if (pathRange < minPathRange) pathRange = minPathRange;
       float relativeGoalDis = adjacentRange;
 
@@ -902,12 +930,14 @@ int main(int argc, char** argv)
           clearPathPerGroupScore[i] = 0;
         }
 
+        // 여기서 장애물에 대한 변수들이 또 적용되는 것 같다. 
         float minObsAngCW = -180.0;
         float minObsAngCCW = 180.0;
         float diameter = sqrt(vehicleLength / 2.0 * vehicleLength / 2.0 + vehicleWidth / 2.0 * vehicleWidth / 2.0);
         float angOffset = atan2(vehicleWidth, vehicleLength) * 180.0 / PI;
         int plannerCloudCropSize = plannerCloudCrop->points.size();
         for (int i = 0; i < plannerCloudCropSize; i++) {
+          // 이렇게 경로 스케일로 변환하는 거는 편하게 이동하기 위해서 인가...
           // 크롭된 플래너 클라우드 포인트를 경로 스케일로 변환
           float x = plannerCloudCrop->points[i].x / pathScale;
           float y = plannerCloudCrop->points[i].y / pathScale;
@@ -953,7 +983,7 @@ int main(int argc, char** argv)
               }
             }
           }
-        
+           // 장애물의 회전을 체크하면, 장애물의 속도도 측정할 수 있을 것으로 보임. 야호
           // 경로 내 장애물 회전 체크
           if (dis < diameter / pathScale && 
               (fabs(x) > vehicleLength / pathScale / 2.0 || fabs(y) > vehicleWidth / pathScale / 2.0) && 
@@ -975,6 +1005,7 @@ int main(int argc, char** argv)
         if (minObsAngCCW < 0) minObsAngCCW = 0;
         
         // 경로 점수 계산
+        // 찾았다.. 여기서 경로 점수 구하는 거 찾았다... 야호....
         for (int i = 0; i < 36 * pathNum; i++) {
           int rotDir = int(i / pathNum); // 현재 경로의 회전 방향 인덱스 계산
           float angDiff = fabs(joyDir - (10.0 * rotDir - 180.0)); // 조이스틱 방향과 현재 회전 방향 간의 각도 차이 계산
@@ -1005,6 +1036,7 @@ int main(int argc, char** argv)
             if (rotDir < 18) rotDirW = fabs(fabs(rotDir - 9) + 1); // 중앙 방향에 가까울수록 가중치가 높음
             else rotDirW = fabs(fabs(rotDir - 27) + 1);
             // 방향 가중치, 회전 방향 가중치 및 페널티 점수를 조합하여 최종 경로 점수 계산
+            // 찾았드아....!!! 이거 보고, 코드 찐하게 생각해볼 것. 
             float score = (1 - sqrt(sqrt(dirWeight * dirDiff))) * rotDirW * rotDirW * rotDirW * rotDirW * penaltyScore;
             if (score > 0) { // 점수가 0보다 크면
               clearPathPerGroupScore[groupNum * rotDir + pathList[i % pathNum]] += score; // 해당 경로 그룹의 점수에 추가
@@ -1012,7 +1044,8 @@ int main(int argc, char** argv)
           }
         }
 
-               // 경로 점수 중 최대 점수를 찾기 위한 변수 초기화
+        // 아이고 이게 끝이 아니구나... 여기서 하면 되는 거구나.... 
+        // 경로 점수 중 최대 점수를 찾기 위한 변수 초기화
         float maxScore = 0;
         int selectedGroupID = -1;
 
